@@ -40,8 +40,8 @@ try {
 
             $nota = (float) $nota;
 
-            if ($nota < 0 || $nota > 20) {
-                response(false, 'La nota debe estar entre 0 y 20');
+            if ($nota < 1 || $nota > 10) {
+                response(false, 'La nota debe estar entre 1 y 10');
             }
 
             $checkStudent = $pdo->prepare("SELECT id FROM estudiantes WHERE id = ?");
@@ -128,8 +128,8 @@ try {
 
             $nota = (float) $nota;
 
-            if ($nota < 0 || $nota > 20) {
-                response(false, 'La nota debe estar entre 0 y 20');
+            if ($nota < 1 || $nota > 10) {
+                response(false, 'La nota debe estar entre 1 y 10');
             }
 
             $checkNote = $pdo->prepare("SELECT id FROM notas WHERE id = ?");

@@ -40,8 +40,8 @@ try {
 
             $nota = (float) $nota;
 
-            if ($nota < 1 || $nota > 10) {
-                response(false, 'La nota debe estar entre 1 y 10');
+            if ($nota < 0 || $nota > 10) {
+                response(false, 'La nota debe estar entre 0 y 10');
             }
 
             $checkStudent = $pdo->prepare("SELECT id FROM estudiantes WHERE id = ?");
@@ -154,6 +154,25 @@ try {
             $stmt->execute([$estudiante_id, $asignatura, $nota, $id]);
 
             response(true, 'Nota actualizada correctamente');
+            break;
+        case 'delete':
+            $id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
+
+            if ($id <= 0) {
+                response(false, 'ID inválido');
+            }
+
+            $checkNote = $pdo->prepare("SELECT id FROM notas WHERE id = ?");
+            $checkNote->execute([$id]);
+
+            if (!$checkNote->fetch()) {
+                response(false, 'La nota no existe');
+            }
+
+            $stmt = $pdo->prepare("DELETE FROM notas WHERE id = ?");
+            $stmt->execute([$id]);
+
+            response(true, 'Nota eliminada correctamente');
             break;
 
         default:

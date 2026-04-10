@@ -122,6 +122,19 @@
         </section>
     </main>
 
+    <div id="modalOverlay" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-icon">🗑️</div>
+        <h3>Eliminar registro</h3>
+        <p id="modalText">¿Seguro que deseas eliminar esta nota?</p>
+
+        <div class="modal-actions">
+            <button type="button" id="confirmDelete" class="btn btn--danger">Sí, eliminar</button>
+            <button type="button" id="cancelDelete" class="btn btn--ghost">Cancelar</button>
+        </div>
+    </div>
+</div>
+
     <script src="assets/app.js"></script>
 </body>
 </html>

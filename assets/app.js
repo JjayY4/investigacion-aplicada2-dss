@@ -1,3 +1,4 @@
+let notaIdAEliminar = null;
 $(document).ready(function () {
     cargarEstudiantes();
     listarNotas();
@@ -50,6 +51,44 @@ $(document).ready(function () {
         limpiarFormulario();
         mostrarMensaje('', true);
     });
+
+    $('#cancelDelete').on('click', function () {
+        cerrarModalEliminar();
+    });
+
+    $('#modalOverlay').on('click', function (e) {
+        if (e.target.id === 'modalOverlay') {
+            cerrarModalEliminar();
+        }
+    });
+
+    $('#confirmDelete').on('click', function () {
+        if (!notaIdAEliminar) return;
+
+        $.ajax({
+            url: 'api.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                action: 'delete',
+                id: notaIdAEliminar
+            },
+            success: function (res) {
+                mostrarMensaje(res.message, res.success);
+
+                if (res.success) {
+                    listarNotas();
+                    cargarPromedio();
+                    cerrarModalEliminar();
+                }
+            },
+            error: function (xhr) {
+                console.error(xhr.responseText);
+                mostrarMensaje('No se pudo eliminar la nota.', false);
+                cerrarModalEliminar();
+            }
+        });
+    });
 });
 
 function cargarEstudiantes() {
@@ -87,41 +126,36 @@ function listarNotas() {
 
             if (res.success && Array.isArray(res.data) && res.data.length > 0) {
                 res.data.forEach(function (item) {
+                    const nota = parseFloat(item.nota);
+                    let claseNota = 'nota-baja';
+
+                    if (nota >= 8) {
+                        claseNota = 'nota-alta';
+                    } else if (nota >= 5) {
+                        claseNota = 'nota-media';
+                    }
+
                     html += `
                         <tr>
                             <td>${item.id}</td>
                             <td>${item.estudiante}</td>
                             <td>${item.asignatura}</td>
-                            <td>${item.nota}</td>
-                            <td>
-                                <button type="button" class="edit-btn" onclick="editarNota(${item.id})">
+                            <td class="${claseNota}">${nota.toFixed(2)}</td>
+                            <td class="actions-cell">
+                                <button type="button" class="edit-btn" onclick="editarNota(${item.id})" title="Editar">
                                     Editar
+                                </button>
+                                <button type="button" class="delete-btn" onclick="abrirModalEliminar(${item.id}, '${item.estudiante}', '${item.asignatura}')" title="Eliminar">
+                                    <span class="trash-icon">🗑</span>
                                 </button>
                             </td>
                         </tr>
                     `;
                 });
             } else {
-                const nota = parseFloat(item.nota);
-                let claseNota = 'nota-baja';
-
-                if (nota >= 8) {
-                    claseNota = 'nota-alta';
-                } else if (nota >= 5) {
-                    claseNota = 'nota-media';
-                }
-
-                html += `
+                html = `
                     <tr>
-                        <td>${item.id}</td>
-                        <td>${item.estudiante}</td>
-                        <td>${item.asignatura}</td>
-                        <td class="${claseNota}">${nota.toFixed(2)}</td>
-                        <td>
-                            <button type="button" class="edit-btn" onclick="editarNota(${item.id})">
-                                Editar
-                            </button>
-                        </td>
+                        <td colspan="5">No hay notas registradas.</td>
                     </tr>
                 `;
             }
@@ -137,7 +171,7 @@ function listarNotas() {
             `);
         }
     });
-}
+}    
 
 function cargarPromedio() {
     $.ajax({
@@ -218,4 +252,21 @@ function mostrarMensaje(texto, esExito) {
         .text(texto)
         .removeClass('ok error')
         .addClass(esExito ? 'ok' : 'error');
+}
+
+function abrirModalEliminar(id, estudiante, asignatura) {
+    notaIdAEliminar = id;
+
+    $('#modalText').html(
+        `¿Seguro que deseas eliminar la nota de <strong>${estudiante}</strong> en <strong>${asignatura}</strong>?`
+    );
+
+    $('#modalOverlay').addClass('show');
+    $('body').addClass('modal-open');
+}
+
+function cerrarModalEliminar() {
+    notaIdAEliminar = null;
+    $('#modalOverlay').removeClass('show');
+    $('body').removeClass('modal-open');
 }

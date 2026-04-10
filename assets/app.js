@@ -102,9 +102,26 @@ function listarNotas() {
                     `;
                 });
             } else {
-                html = `
+                const nota = parseFloat(item.nota);
+                let claseNota = 'nota-baja';
+
+                if (nota >= 8) {
+                    claseNota = 'nota-alta';
+                } else if (nota >= 5) {
+                    claseNota = 'nota-media';
+                }
+
+                html += `
                     <tr>
-                        <td colspan="5">No hay notas registradas.</td>
+                        <td>${item.id}</td>
+                        <td>${item.estudiante}</td>
+                        <td>${item.asignatura}</td>
+                        <td class="${claseNota}">${nota.toFixed(2)}</td>
+                        <td>
+                            <button type="button" class="edit-btn" onclick="editarNota(${item.id})">
+                                Editar
+                            </button>
+                        </td>
                     </tr>
                 `;
             }
@@ -130,8 +147,19 @@ function cargarPromedio() {
         data: { action: 'average' },
         success: function (res) {
             if (res.success && res.data) {
-                const promedio = res.data.promedio ?? 0;
-                $('#promedioBox').text(promedio);
+                const promedio = parseFloat(res.data.promedio ?? 0);
+
+                let clase = 'nota-baja';
+
+                if (promedio >= 8) {
+                    clase = 'nota-alta';
+                } else if (promedio >= 5) {
+                    clase = 'nota-media';
+                }
+                $('#promedioBox')
+                    .removeClass('nota-alta nota-media nota-baja')
+                    .addClass(clase)
+                    .text(promedio.toFixed(2));
             } else {
                 $('#promedioBox').text('0.00');
             }
